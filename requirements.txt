@@ -1,0 +1,20 @@
+# OMR Pipeline — runtime dependencies
+# Tested with Python 3.11
+
+# ── Core image / numerical stack ──────────────────────────────────
+opencv-python>=4.8.0,<5.0       # cv2 — image I/O, morphology, homography
+numpy>=1.24.0,<2.0              # arrays
+scipy>=1.10.0                   # scipy.signal.find_peaks for staff detection
+
+# ── XML construction ──────────────────────────────────────────────
+lxml>=4.9.0                     # MusicXML output
+
+# ── YOLO inference ────────────────────────────────────────────────
+# Pulls in torch as a transitive dep; install the matching CUDA build
+# of torch first if you need GPU acceleration:
+#     https://pytorch.org/get-started/locally/
+ultralytics>=8.1.0,<9.0
+
+# ── HTTP API (only required when running dummy_api.py as a server) ─
+flask>=2.3.0                    # optional — Python API works without it
+requests>=2.28.0                # optional — for api_client_example.py

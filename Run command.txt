@@ -1,0 +1,11 @@
+Pipeline:
+python pipeline.py [input image path] [Output folder path] [Model path] --debug
+
+
+python pipeline.py S:\omr\score.png S:\omr\out\ S:\omr\Model.pt --debug
+
+
+
+Api:
+python real_api.py
+python api_client_example.py --process [input image path]
