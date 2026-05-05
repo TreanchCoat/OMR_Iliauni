@@ -173,6 +173,31 @@ def create_app():
     app = Flask(__name__)
     app.config['MAX_CONTENT_LENGTH'] = MAX_IMAGE_MB * 1024 * 1024
 
+    @app.after_request
+    def add_cors(response):
+        response.headers['Access-Control-Allow-Origin']  = '*'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        return response
+
+    @app.route('/<path:p>', methods=['OPTIONS'])
+    def options_handler(p):
+        from flask import Response as R
+        return R(status=204, headers={
+            'Access-Control-Allow-Origin':  '*',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        })
+
+    # ── GET / — serve the browser API tester ──
+    @app.route('/', methods=['GET'])
+    def tester_ui():
+        tester_path = Path(__file__).parent / 'api_tester.html'
+        if tester_path.exists():
+            return send_file(str(tester_path), mimetype='text/html')
+        return ('<p>api_tester.html not found next to real_api.py. '
+                'Place both files in the same directory.</p>'), 404
+
     # ── POST /process ──
     @app.route('/process', methods=['POST'])
     def process_endpoint():
