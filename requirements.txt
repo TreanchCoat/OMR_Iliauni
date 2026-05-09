@@ -1,28 +1,13 @@
-# OMR Pipeline — runtime dependencies
-# Tested with Python 3.11
+# ── Core API ─────────────────────────────────────────────
+fastapi==0.136.1
+uvicorn==0.30.6
+python-multipart==0.0.9
 
-# ── Core image / numerical stack ──────────────────────────────────
-opencv-python>=4.8.0,<5.0       # cv2 — image I/O, morphology, homography
-numpy>=1.24.0,<2.0              # arrays
-scipy>=1.10.0                   # scipy.signal.find_peaks for staff detection
-
-# ── XML construction ──────────────────────────────────────────────
-lxml>=4.9.0                     # MusicXML output
-
-# ── YOLO inference ────────────────────────────────────────────────
-# Pulls in torch as a transitive dep; install the matching CUDA build
-# of torch first if you need GPU acceleration:
-#     https://pytorch.org/get-started/locally/
-ultralytics>=8.1.0,<9.0
-
-# ── U-Net training (only required to train the staff segmenter) ──
-# torch already comes via ultralytics. Albumentations is needed only when
-# training; inference uses opencv + torch.
-albumentations>=1.3.0           # optional — for U-Net training augmentations
-
-# ── HTTP API ────────────────────────────────────────────────────────
-fastapi>=0.100.0                # core web framework
-uvicorn>=0.23.0                 # ASGI server for FastAPI
-python-multipart>=0.0.6         # support for form data and file uploads
-psutil>=5.9.0                   # used by /admin route for stats
-requests>=2.28.0                # optional — for api_client_example.py
+# ── Lightweight utils ────────────────────────────────────
+requests==2.32.3
+psutil==5.9.8
+opencv-python-headless==4.11.0.86
+# ── XML only (keep if you generate MusicXML here) ────────
+lxml==5.2.1
+ultralytics
+python-dotenv
