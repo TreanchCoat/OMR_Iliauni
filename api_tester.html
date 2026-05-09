@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMR API — Interactive Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #0e0f11;
+    --bg2:         #15171a;
+    --bg3:         #1c1f23;
+    --border:      #2a2d32;
+    --border2:     #3a3d44;
+    --text:        #e8eaed;
+    --text2:       #9aa0ab;
+    --text3:       #5c6370;
+    --accent:      #c9a96e;
+    --accent2:     #e8c98a;
+    --green:       #4caf82;
+    --green-bg:    #0d2218;
+    --red:         #e05c5c;
+    --red-bg:      #250f0f;
+    --blue:        #5b9cf6;
+    --blue-bg:     #0d1829;
+    --tag-post:    #c9a96e;
+    --tag-get:     #5b9cf6;
+    --tag-bg-post: #261e0e;
+    --tag-bg-get:  #0d1829;
+    --radius:      6px;
+    --radius-lg:   10px;
+    --font-sans:   'DM Sans', sans-serif;
+    --font-serif:  'Fraunces', Georgia, serif;
+    --font-mono:   'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo h1 {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--accent2);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .sidebar-section {
+    padding: 16px 20px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active {
+    background: var(--bg3);
+    color: var(--accent2);
+    border-left-color: var(--accent);
+  }
+
+  .method-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .tag-post { background: var(--tag-bg-post); color: var(--tag-post); }
+  .tag-get  { background: var(--tag-bg-get);  color: var(--tag-get);  }
+
+  .server-status {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .status-dot.ok     { background: var(--green); box-shadow: 0 0 0 2px var(--green-bg); }
+  .status-dot.error  { background: var(--red);   box-shadow: 0 0 0 2px var(--red-bg); }
+
+  /* ── Main ── */
+  .main {
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 900px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-method {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: var(--radius);
+  }
+
+  .section-path {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  /* ── Form elements ── */
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+  }
+
+  .field input[type="file"] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .field input[type="file"]::file-selector-button {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #0e0f11;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn:hover   { background: var(--accent2); }
+  .btn:active  { transform: scale(0.98); }
+  .btn:disabled {
+    background: var(--bg3);
+    color: var(--text3);
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-secondary:hover { background: var(--bg3); color: var(--text); }
+
+  /* ── Response panel ── */
+  .response-panel {
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: none;
+  }
+
+  .response-panel.visible { display: block; }
+
+  .response-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .status-code {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .status-200 { background: var(--green-bg); color: var(--green); }
+  .status-err { background: var(--red-bg);   color: var(--red);   }
+
+  .response-time { color: var(--text3); margin-left: auto; }
+
+  /* ── Output areas ── */
+  .output-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .output-tab {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s;
+  }
+
+  .output-tab:hover { color: var(--text2); }
+  .output-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .output-pane { display: none; }
+  .output-pane.active { display: block; }
+
+  pre.json-out {
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text2);
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--bg2);
+  }
+
+  .image-out {
+    padding: 16px;
+    background: var(--bg2);
+    text-align: center;
+  }
+
+  .image-out img {
+    max-width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .xml-out {
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: #9aa0ab;
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--bg2);
+  }
+
+  /* XML syntax highlight */
+  .xml-tag     { color: #5b9cf6; }
+  .xml-attr    { color: #c9a96e; }
+  .xml-val     { color: #4caf82; }
+  .xml-comment { color: #5c6370; font-style: italic; }
+
+  /* ── Download buttons ── */
+  .download-row {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .spinner.active { display: inline-block; }
+
+  /* ── Info badge ── */
+  .info-badge {
+    display: inline-block;
+    background: var(--blue-bg);
+    color: var(--blue);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  /* ── Base URL bar ── */
+  .base-url-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    margin-bottom: 36px;
+  }
+
+  .base-url-bar label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .base-url-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+  }
+
+  /* ── Summary stats ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .stat-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--accent2);
+    font-family: var(--font-serif);
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <h1>OMR Pipeline</h1>
+      <p>API Tester v1.0</p>
+    </div>
+
+    <div class="sidebar-section">Endpoints</div>
+
+    <a class="nav-item active" href="#process" onclick="scrollTo('process')">
+      <span class="method-tag tag-post">POST</span>
+      /process
+    </a>
+    <a class="nav-item" href="#rectified" onclick="scrollTo('rectified')">
+      <span class="method-tag tag-get">GET</span>
+      /rectified
+    </a>
+    <a class="nav-item" href="#xml" onclick="scrollTo('xml')">
+      <span class="method-tag tag-get">GET</span>
+      /xml
+    </a>
+    <a class="nav-item" href="#detections" onclick="scrollTo('detections')">
+      <span class="method-tag tag-get">GET</span>
+      /detections
+    </a>
+    <a class="nav-item" href="#full" onclick="scrollTo('full')">
+      <span class="method-tag tag-get">GET</span>
+      /full
+    </a>
+    <a class="nav-item" href="#health" onclick="scrollTo('health')">
+      <span class="method-tag tag-get">GET</span>
+      /health
+    </a>
+
+    <div class="server-status">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">checking…</span>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Base URL -->
+    <div class="base-url-bar">
+      <label>Base URL</label>
+      <input type="text" id="base-url" value="http://localhost:5000" spellcheck="false" />
+      <button class="btn btn-secondary" onclick="checkHealth()" style="padding:6px 14px;font-size:12px;">Ping</button>
+    </div>
+
+    <!-- ── POST /process ── -->
+    <div class="section" id="process">
+      <div class="section-header">
+        <span class="method-tag tag-post section-method">POST</span>
+        <span class="section-path">/process</span>
+      </div>
+      <p class="section-desc">
+        Submit a score image. The pipeline will rectify staff lines, detect symbols with YOLO,
+        and return the rectified image + MusicXML. This is the main entry point — all GET
+        endpoints serve the cached result from the last call here.
+      </p>
+
+      <div class="field">
+        <label>image  <span class="info-badge">multipart/form-data</span></label>
+        <input type="file" id="process-file" accept="image/*,.png,.jpg,.tif" />
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn" id="process-btn" onclick="runProcess()">
+          <span id="process-spinner" class="spinner"></span>
+          Execute
+        </button>
+        <span id="process-status" style="font-size:12px;color:var(--text3);font-family:var(--font-mono);"></span>
+      </div>
+
+      <div class="response-panel" id="process-panel">
+        <div class="response-bar">
+          <span class="status-code" id="process-code"></span>
+          <span id="process-mime" style="color:var(--text3)"></span>
+          <span class="response-time" id="process-time"></span>
+        </div>
+        <div class="output-tabs">
+          <div class="output-tab active" onclick="switchTab('process','image')">Rectified image</div>
+          <div class="output-tab" onclick="switchTab('process','xml')">MusicXML</div>
+          <div class="output-tab" onclick="switchTab('process','json')">Raw JSON</div>
+          <div class="output-tab" onclick="switchTab('process','stats')">Stats</div>
+        </div>
+        <div class="output-pane active" id="process-pane-image">
+          <div class="image-out"><img id="process-img" src="" alt="Rectified score" /></div>
+        </div>
+        <div class="output-pane" id="process-pane-xml">
+          <div class="xml-out" id="process-xml"></div>
+        </div>
+        <div class="output-pane" id="process-pane-json">
+          <pre class="json-out" id="process-json"></pre>
+        </div>
+        <div class="output-pane" id="process-pane-stats">
+          <div style="padding:16px;background:var(--bg2);">
+            <div class="stats-grid" id="process-stats"></div>
+          </div>
+        </div>
+        <div class="download-row">
+          <button class="btn btn-secondary" id="dl-rect-btn" onclick="downloadFile('rectified.png','image/png')" style="font-size:12px;padding:6px 14px;display:none;">↓ rectified.png</button>
+          <button class="btn btn-secondary" id="dl-xml-btn"  onclick="downloadFile('score.xml','application/xml')"  style="font-size:12px;padding:6px 14px;display:none;">↓ score.xml</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GET /rectified ── -->
+    <div class="section" id="rectified">
+      <div class="section-header">
+        <span class="method-tag tag-get section-method">GET</span>
+        <span class="section-path">/rectified</span>
+      </div>
+      <p class="section-desc">Returns the rectified-page PNG — the staff-straightened version of the last processed image.</p>
+      <button class="btn" onclick="runGet('rectified')">
+        <span id="rectified-spinner" class="spinner"></span>
+        Execute
+      </button>
+      <div class="response-panel" id="rectified-panel">
+        <div class="response-bar">
+          <span class="status-code" id="rectified-code"></span>
+          <span class="response-time" id="rectified-time"></span>
+        </div>
+        <div class="image-out"><img id="rectified-img" src="" alt="Rectified score" style="max-width:100%"/></div>
+        <div class="download-row">
+          <a class="btn btn-secondary" id="rectified-dl" style="font-size:12px;padding:6px 14px;display:none;">↓ rectified.png</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GET /xml ── -->
+    <div class="section" id="xml">
+      <div class="section-header">
+        <span class="method-tag tag-get section-method">GET</span>
+        <span class="section-path">/xml</span>
+      </div>
+      <p class="section-desc">Returns the assembled MusicXML with embedded OMR coordinate metadata. Every <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">&lt;note&gt;</code> carries an <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">id</code> matching the <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent)">omr-coordinates</code> JSON embedded in the file.</p>
+      <button class="btn" onclick="runGet('xml')">
+        <span id="xml-spinner" class="spinner"></span>
+        Execute
+      </button>
+      <div class="response-panel" id="xml-panel">
+        <div class="response-bar">
+          <span class="status-code" id="xml-code"></span>
+          <span class="response-time" id="xml-time"></span>
+        </div>
+        <div class="xml-out" id="xml-body" style="max-height:500px"></div>
+        <div class="download-row">
+          <a class="btn btn-secondary" id="xml-dl" style="font-size:12px;padding:6px 14px;display:none;">↓ score.xml</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GET /detections ── -->
+    <div class="section" id="detections">
+      <div class="section-header">
+        <span class="method-tag tag-get section-method">GET</span>
+        <span class="section-path">/detections</span>
+      </div>
+      <p class="section-desc">Returns symbol detections grouped by staff, with both crop-relative and full-image-absolute coordinates.</p>
+      <button class="btn" onclick="runGet('detections')">
+        <span id="detections-spinner" class="spinner"></span>
+        Execute
+      </button>
+      <div class="response-panel" id="detections-panel">
+        <div class="response-bar">
+          <span class="status-code" id="detections-code"></span>
+          <span class="response-time" id="detections-time"></span>
+        </div>
+        <pre class="json-out" id="detections-body"></pre>
+      </div>
+    </div>
+
+    <!-- ── GET /full ── -->
+    <div class="section" id="full">
+      <div class="section-header">
+        <span class="method-tag tag-get section-method">GET</span>
+        <span class="section-path">/full</span>
+      </div>
+      <p class="section-desc">All three outputs (rectified image as base64, detections JSON, MusicXML) in a single response.</p>
+      <button class="btn" onclick="runGet('full')">
+        <span id="full-spinner" class="spinner"></span>
+        Execute
+      </button>
+      <div class="response-panel" id="full-panel">
+        <div class="response-bar">
+          <span class="status-code" id="full-code"></span>
+          <span class="response-time" id="full-time"></span>
+        </div>
+        <pre class="json-out" id="full-body"></pre>
+      </div>
+    </div>
+
+    <!-- ── GET /health ── -->
+    <div class="section" id="health">
+      <div class="section-header">
+        <span class="method-tag tag-get section-method">GET</span>
+        <span class="section-path">/health</span>
+      </div>
+      <p class="section-desc">Server readiness check. Reports model path, whether the model file exists, and whether there is a cached result from a previous /process call.</p>
+      <button class="btn" onclick="runGet('health')">
+        <span id="health-spinner" class="spinner"></span>
+        Execute
+      </button>
+      <div class="response-panel" id="health-panel">
+        <div class="response-bar">
+          <span class="status-code" id="health-code"></span>
+          <span class="response-time" id="health-time"></span>
+        </div>
+        <pre class="json-out" id="health-body"></pre>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── State ──
+let _lastRectifiedBlob = null;
+let _lastXmlText       = null;
+
+// ── Utilities ──
+function base() { return document.getElementById('base-url').value.replace(/\/$/, ''); }
+
+function setStatus(code, elId) {
+  const el = document.getElementById(elId);
+  el.textContent = code;
+  el.className = 'status-code ' + (code >= 200 && code < 300 ? 'status-200' : 'status-err');
+}
+
+function showPanel(id) {
+  document.getElementById(id + '-panel').classList.add('visible');
+}
+
+function setSpinner(id, on) {
+  const s = document.getElementById(id + '-spinner');
+  if (s) s.classList.toggle('active', on);
+}
+
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  return false;
+}
+
+function syntaxHighlightXml(xml) {
+  return xml
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/(&lt;\/?[\w:-]+)/g, '<span class="xml-tag">$1</span>')
+    .replace(/(&gt;)/g, '<span class="xml-tag">$1</span>')
+    .replace(/([\w:-]+=)/g, '<span class="xml-attr">$1</span>')
+    .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="xml-val">$1</span>');
+}
+
+function downloadFile(filename, mime) {
+  if (filename === 'rectified.png' && _lastRectifiedBlob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(_lastRectifiedBlob);
+    a.download = filename;
+    a.click();
+  } else if (filename === 'score.xml' && _lastXmlText) {
+    const blob = new Blob([_lastXmlText], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+}
+
+function switchTab(section, pane) {
+  const panel = document.getElementById(section + '-panel');
+  panel.querySelectorAll('.output-tab').forEach((t, i) => {
+    const panes = ['image', 'xml', 'json', 'stats'];
+    t.classList.toggle('active', panes[i] === pane);
+  });
+  panel.querySelectorAll('.output-pane').forEach(p => {
+    p.classList.toggle('active', p.id === section + '-pane-' + pane);
+  });
+}
+
+// ── Health check (sidebar) ──
+async function checkHealth() {
+  const dot  = document.getElementById('status-dot');
+  const text = document.getElementById('status-text');
+  dot.className = 'status-dot';
+  text.textContent = 'checking…';
+  try {
+    const r = await fetch(base() + '/health');
+    if (r.ok) {
+      dot.className = 'status-dot ok';
+      const d = await r.json();
+      const hasModel = d.pipeline?.model_exists;
+      text.textContent = hasModel ? 'model ready' : 'no model';
+    } else {
+      throw new Error(r.status);
+    }
+  } catch {
+    dot.className = 'status-dot error';
+    text.textContent = 'unreachable';
+  }
+}
+
+// ── GET endpoints ──
+async function runGet(endpoint) {
+  setSpinner(endpoint, true);
+  const t0 = Date.now();
+  try {
+    const r = await fetch(base() + '/' + endpoint);
+    const ms = Date.now() - t0;
+    setStatus(r.status, endpoint + '-code');
+    document.getElementById(endpoint + '-time').textContent = ms + ' ms';
+    showPanel(endpoint);
+
+    if (endpoint === 'rectified') {
+      const blob = await r.blob();
+      _lastRectifiedBlob = blob;
+      const url = URL.createObjectURL(blob);
+      document.getElementById('rectified-img').src = url;
+      const dlA = document.getElementById('rectified-dl');
+      dlA.href = url;
+      dlA.download = 'rectified.png';
+      dlA.style.display = 'inline-flex';
+    } else if (endpoint === 'xml') {
+      const text = await r.text();
+      _lastXmlText = text;
+      document.getElementById('xml-body').innerHTML = syntaxHighlightXml(text);
+      const dlA = document.getElementById('xml-dl');
+      const blob = new Blob([text], { type: 'application/xml' });
+      dlA.href = URL.createObjectURL(blob);
+      dlA.download = 'score.xml';
+      dlA.style.display = 'inline-flex';
+    } else {
+      const data = await r.json();
+      document.getElementById(endpoint + '-body').textContent =
+        JSON.stringify(data, null, 2);
+    }
+  } catch (e) {
+    setStatus(0, endpoint + '-code');
+    document.getElementById(endpoint + '-time').textContent = 'network error';
+    showPanel(endpoint);
+    const bodyEl = document.getElementById(endpoint + '-body');
+    if (bodyEl) bodyEl.textContent = String(e);
+  } finally {
+    setSpinner(endpoint, false);
+  }
+}
+
+// ── POST /process ──
+async function runProcess() {
+  const file = document.getElementById('process-file').files[0];
+  if (!file) {
+    document.getElementById('process-status').textContent = 'select a file first';
+    return;
+  }
+
+  const btn = document.getElementById('process-btn');
+  btn.disabled = true;
+  setSpinner('process', true);
+  document.getElementById('process-status').textContent = 'running pipeline…';
+
+  const fd = new FormData();
+  fd.append('image', file);
+  const t0 = Date.now();
+
+  try {
+    const r = await fetch(base() + '/process', { method: 'POST', body: fd });
+    const ms = Date.now() - t0;
+    setStatus(r.status, 'process-code');
+    document.getElementById('process-time').textContent = ms + ' ms';
+    document.getElementById('process-mime').textContent = 'application/json';
+    showPanel('process');
+
+    const data = await r.json();
+
+    // Show raw JSON
+    document.getElementById('process-json').textContent = JSON.stringify(data, null, 2);
+
+    if (r.ok) {
+      document.getElementById('process-status').textContent = 'done in ' + (ms / 1000).toFixed(1) + 's';
+
+      // Rectified image
+      if (data.rectified_image_b64) {
+        const src = 'data:' + (data.rectified_image_mime || 'image/png') + ';base64,' + data.rectified_image_b64;
+        document.getElementById('process-img').src = src;
+        _lastRectifiedBlob = await (await fetch(src)).blob();
+        document.getElementById('dl-rect-btn').style.display = 'inline-flex';
+      }
+
+      // MusicXML
+      if (data.xml) {
+        _lastXmlText = data.xml;
+        document.getElementById('process-xml').innerHTML = syntaxHighlightXml(data.xml);
+        document.getElementById('dl-xml-btn').style.display = 'inline-flex';
+      }
+
+      // Stats
+      if (data.detections) {
+        const staves = data.detections;
+        const totalDets = staves.reduce((s, st) => s + st.total_detections, 0);
+        const counts = {};
+        staves.forEach(st => st.detections.forEach(d => {
+          counts[d.class_name] = (counts[d.class_name] || 0) + 1;
+        }));
+        const topClass = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
+
+        document.getElementById('process-stats').innerHTML = `
+          <div class="stat-card">
+            <div class="stat-label">staves</div>
+            <div class="stat-val">${staves.length}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">symbols</div>
+            <div class="stat-val">${totalDets}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">parts</div>
+            <div class="stat-val">${[...new Set(staves.map(s=>s.part_id))].length}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">top class</div>
+            <div class="stat-val" style="font-size:14px;font-family:var(--font-mono);color:var(--accent);">${topClass ? topClass[0] : '—'}</div>
+          </div>
+        `;
+      }
+
+      // Auto-refresh health sidebar
+      checkHealth();
+    } else {
+      document.getElementById('process-status').textContent =
+        data.error || 'pipeline error';
+    }
+  } catch (e) {
+    setStatus(0, 'process-code');
+    document.getElementById('process-status').textContent = 'network error';
+    document.getElementById('process-json').textContent = String(e);
+    showPanel('process');
+  } finally {
+    btn.disabled = false;
+    setSpinner('process', false);
+  }
+}
+
+// ── Init ──
+checkHealth();
+setInterval(checkHealth, 15000);
+</script>
+</body>
+</html>

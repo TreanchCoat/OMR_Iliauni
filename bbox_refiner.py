@@ -171,6 +171,7 @@ def _find_best_component(cleaned: np.ndarray,
 def refine_detection(detection,
                      cleaned: np.ndarray,
                      crop_y1: int,
+                     crop_x1: int = 0,
                      class_name: Optional[str] = None,
                      config_override: Optional[dict] = None) -> bool:
     """
@@ -242,7 +243,7 @@ def refine_detection(detection,
     detection.cy = int(new_cy)
 
     # full_* uses absolute (rectified-image) coordinates
-    detection.full_cx = detection.cx
+    detection.full_cx = detection.cx + crop_x1
     detection.full_cy = detection.cy + crop_y1
 
     return True
@@ -269,9 +270,10 @@ def refine_page(page_detections, processed_score,
         for pstaff, sdet in zip(part_staves, staff_dets_list):
             cleaned = pstaff.cleaned
             crop_y1 = pstaff.crop_y1
+            crop_x1 = getattr(pstaff, 'crop_x1', 0)
             for det in sdet.detections:
                 n_total += 1
-                if refine_detection(det, cleaned, crop_y1):
+                if refine_detection(det, cleaned, crop_y1, crop_x1):
                     n_modified += 1
 
     if verbose:

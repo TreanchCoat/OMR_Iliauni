@@ -64,6 +64,10 @@ class ProcessedStaff:
     @property
     def crop_y2(self): return self.staff_data.crop_y2
     @property
+    def crop_x1(self): return self.staff_data.crop_x1
+    @property
+    def crop_x2(self): return self.staff_data.crop_x2
+    @property
     def img_w(self): return self.staff_data.crop_x2
 
 

@@ -192,14 +192,19 @@ def detect_page_barlines(processed_score,
         for pstaff in part_staves:
             # Convert full-image staff line y's into crop coordinates
             line_positions_crop = [y - pstaff.crop_y1 for y in pstaff.line_positions]
+            crop_x1 = getattr(pstaff, 'crop_x1', 0)
 
-            xs = detect_barlines_in_staff(
+            xs_crop = detect_barlines_in_staff(
                 pstaff.cleaned,
                 line_positions_crop,
                 tol_y=tol_y,
                 min_coverage=min_coverage,
                 max_width=max_width,
             )
+            # Translate to full-image x by adding crop_x1 offset.
+            # (Was a no-op before when all crops started at x=0; now matters
+            # for partial-width staves.)
+            xs = [x + crop_x1 for x in xs_crop]
 
             sb = StaffBarlines(
                 part_id       = pstaff.part_id,
@@ -233,8 +238,11 @@ def visualize_barlines(processed_score, page_barlines: PageBarlines,
             else:
                 vis = pstaff.cleaned.copy()
 
+            # barline_xs are in full-image coords; translate back for drawing.
+            crop_x1 = getattr(pstaff, 'crop_x1', 0)
             for x in sb.barline_xs:
-                cv2.line(vis, (x, 0), (x, vis.shape[0] - 1), (0, 0, 255), 2)
+                xc = x - crop_x1
+                cv2.line(vis, (xc, 0), (xc, vis.shape[0] - 1), (0, 0, 255), 2)
 
             cv2.putText(vis, f'{sb.part_id} st{sb.staff_in_part+1}: '
                               f'{sb.num_barlines} barlines',

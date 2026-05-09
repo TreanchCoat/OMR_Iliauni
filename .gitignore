@@ -1,0 +1,58 @@
+# ─── Secrets / local config ───
+.env
+.env.local
+.env.*.local
+
+# ─── Models (large files, often Git LFS instead) ───
+models/*.pt
+models/*.pth
+models/*.onnx
+
+# ─── Generated outputs ───
+output/
+api_outputs/
+debug_rectify/
+labeled_crops/
+preprocess_test/
+score_test/
+rectify_test/
+refine_test/
+barline_test/
+
+# ─── Datasets (multi-GB, never commit) ───
+datasets/
+CVCMUSCIMA_SR/
+CVCMUSCIMA_SR.zip
+muscima_manifest.json
+
+# ─── Python ───
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ─── Editors ───
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ─── Training artifacts ───
+*.history.json
+runs/
+wandb/
+
+# ─── Test outputs ───
+yolo_staff_test.png
+unet_mask.png
+unet_prob.png
+unet_staff_test.png
+what_model_sees.png
+diagnose_pair_*.png
+check_img.png
+check_mask.png

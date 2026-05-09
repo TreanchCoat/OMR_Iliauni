@@ -38,7 +38,7 @@ Usage
     # Submit an image:
     curl -F "image=@score.png" http://localhost:5000/process -o response.json
 """
-
+import env_loader  # noqa
 from __future__ import annotations
 
 import base64

@@ -88,6 +88,7 @@ class StaffDetections:
     line_positions: List[int]
     line_spacing:   float
     crop_y1:        int
+    crop_x1:        int = 0    # horizontal crop offset (0 if crop is full width)
     detections:     List[Detection] = field(default_factory=list)
 
     @property
@@ -171,9 +172,10 @@ def detect_page(processed_score,
                         cx=cx, cy=cy,
                         x1=int(x1), y1=int(y1), x2=int(x2), y2=int(y2),
                         # Coordinates relative to the full rectified image:
-                        # crop spans full width, so x doesn't shift; y shifts
-                        # by the crop's vertical offset.
-                        full_cx = cx,
+                        # both x and y shift by the crop's offset.  crop_x1
+                        # was always 0 in the old full-width-crop world, but
+                        # is now non-zero for partial-width staves.
+                        full_cx = cx + pstaff.crop_x1,
                         full_cy = cy + pstaff.crop_y1,
                     ))
 
@@ -185,6 +187,7 @@ def detect_page(processed_score,
                 line_positions = list(pstaff.line_positions),
                 line_spacing   = float(pstaff.line_spacing),
                 crop_y1        = int(pstaff.crop_y1),
+                crop_x1        = int(getattr(pstaff, 'crop_x1', 0)),
                 detections     = detections,
             )
 
@@ -220,6 +223,7 @@ def to_json_list(page: PageDetections) -> list:
             'line_positions':   sd.line_positions,
             'line_spacing':     sd.line_spacing,
             'crop_y1':          sd.crop_y1,
+            'crop_x1':          sd.crop_x1,
             'total_detections': sd.total_detections,
             'detections':       [asdict(d) for d in sd.detections],
         })
