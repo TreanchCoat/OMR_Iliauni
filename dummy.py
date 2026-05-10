@@ -48,7 +48,7 @@ logging.basicConfig(
 logger = logging.getLogger("OMR-DUMMY")
 
 # Add project root to sys.path
-_ROOT = Path(__file__).parent
+_ROOT = Path(os.getcwd())
 if str(_ROOT) not in sys.path:
     sys.path.append(str(_ROOT))
 
