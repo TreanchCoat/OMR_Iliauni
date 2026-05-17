@@ -1,0 +1,27 @@
+P2 staff 3
+Total: 24 detections
+--------------------------------------------------
+clefG                          conf=0.93 cx= 280 cy= 104
+keyFlat                        conf=0.88 cx= 332 cy=  93
+keyFlat                        conf=0.80 cx= 356 cy=  65
+noteheadBlack                  conf=0.89 cx= 416 cy= 121
+noteheadBlack                  conf=0.83 cx= 474 cy= 112
+beam                           conf=0.81 cx= 515 cy=  72
+beam                           conf=0.81 cx= 516 cy=  60
+noteheadBlack                  conf=0.88 cx= 533 cy= 121
+noteheadBlack                  conf=0.86 cx= 593 cy= 130
+noteheadBlack                  conf=0.80 cx= 653 cy= 121
+beam                           conf=0.86 cx= 725 cy=  62
+slur                           conf=0.86 cx= 765 cy= 168
+noteheadBlack                  conf=0.74 cx= 778 cy= 113
+noteheadHalf                   conf=0.76 cx= 870 cy= 131
+noteheadHalf                   conf=0.89 cx=1130 cy= 121
+fermataAbove                   conf=0.96 cx=1131 cy=  33
+staff                          conf=0.68 cx=1209 cy=  98
+restHalf                       conf=0.25 cx=1256 cy=  97
+noteheadHalf                   conf=0.84 cx=1398 cy= 113
+noteheadBlack                  conf=0.74 cx=1547 cy= 113
+noteheadBlack                  conf=0.86 cx=1661 cy= 113
+noteheadHalf                   conf=0.87 cx=1774 cy= 112
+noteheadBlack                  conf=0.74 cx=2049 cy= 121
+noteheadBlack                  conf=0.77 cx=2205 cy= 113

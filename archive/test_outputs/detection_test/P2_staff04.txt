@@ -1,0 +1,39 @@
+P2 staff 4
+Total: 36 detections
+--------------------------------------------------
+clefG                          conf=0.93 cx= 280 cy= 104
+keyFlat                        conf=0.86 cx= 333 cy=  92
+keyFlat                        conf=0.75 cx= 357 cy=  65
+articAccentAbove               conf=0.30 cx= 426 cy=  50
+dynamicM                       conf=0.27 cx= 429 cy= 188
+noteheadBlack                  conf=0.67 cx= 437 cy= 100
+dynamicP                       conf=0.39 cx= 445 cy= 192
+beam                           conf=0.86 cx= 459 cy= 155
+noteheadBlack                  conf=0.86 cx= 503 cy=  92
+noteheadBlack                  conf=0.71 cx= 567 cy= 100
+beam                           conf=0.82 cx= 612 cy=  52
+slur                           conf=0.61 cx= 616 cy=  43
+noteheadBlack                  conf=0.90 cx= 634 cy= 112
+noteheadBlack                  conf=0.69 cx= 707 cy= 100
+noteheadBlack                  conf=0.88 cx= 799 cy=  93
+fermataAbove                   conf=0.92 cx= 802 cy=  33
+fingering1                     conf=0.46 cx= 875 cy=  17
+noteheadHalf                   conf=0.91 cx= 912 cy= 113
+dynamicM                       conf=0.27 cx= 913 cy= 188
+noteheadBlack                  conf=0.90 cx=1094 cy= 121
+slur                           conf=0.84 cx=1098 cy=  43
+beam                           conf=0.58 cx=1135 cy=  62
+noteheadBlack                  conf=0.90 cx=1160 cy= 113
+noteheadBlack                  conf=0.76 cx=1247 cy= 100
+noteheadHalf                   conf=0.83 cx=1345 cy= 113
+dynamicM                       conf=0.21 cx=1378 cy= 189
+staff                          conf=0.65 cx=1518 cy=  99
+noteheadBlack                  conf=0.90 cx=1529 cy= 113
+slur                           conf=0.85 cx=1540 cy= 149
+noteheadBlack                  conf=0.73 cx=1606 cy= 100
+noteheadBlack                  conf=0.87 cx=1655 cy= 113
+noteheadBlack                  conf=0.84 cx=1733 cy= 121
+noteheadHalf                   conf=0.88 cx=1835 cy= 121
+noteheadBlack                  conf=0.87 cx=2031 cy= 130
+slur                           conf=0.85 cx=2035 cy= 173
+noteheadBlack                  conf=0.74 cx=2205 cy= 148

@@ -1,0 +1,30 @@
+P3 staff 2
+Total: 27 detections
+--------------------------------------------------
+clefF                          conf=0.90 cx= 282 cy=  92
+keyFlat                        conf=0.83 cx= 332 cy= 114
+keyFlat                        conf=0.86 cx= 357 cy=  84
+dynamicM                       conf=0.41 cx= 430 cy= 191
+noteheadBlack                  conf=0.87 cx= 441 cy=  93
+dynamicP                       conf=0.41 cx= 457 cy= 190
+noteheadBlack                  conf=0.89 cx= 550 cy= 112
+slur                           conf=0.87 cx= 550 cy=  48
+noteheadHalf                   conf=0.88 cx= 656 cy= 121
+dynamicP                       conf=0.39 cx= 841 cy= 190
+noteheadHalf                   conf=0.89 cx= 858 cy= 123
+slur                           conf=0.87 cx=1003 cy= 150
+staff                          conf=0.60 cx=1152 cy=  99
+noteheadHalf                   conf=0.89 cx=1153 cy= 113
+dynamicP                       conf=0.42 cx=1280 cy= 194
+noteheadBlack                  conf=0.58 cx=1289 cy= 100
+slur                           conf=0.88 cx=1466 cy=  63
+staff                          conf=0.48 cx=1518 cy= 115
+noteheadBlack                  conf=0.90 cx=1535 cy=  93
+flag8thDown                    conf=0.84 cx=1536 cy= 130
+noteheadHalf                   conf=0.80 cx=1647 cy=  93
+dynamicP                       conf=0.36 cx=1774 cy= 192
+dynamicS                       conf=0.21 cx=1774 cy= 191
+noteheadHalf                   conf=0.83 cx=1794 cy=  94
+noteheadBlack                  conf=0.62 cx=1938 cy= 101
+slur                           conf=0.88 cx=2030 cy=  52
+noteheadBlack                  conf=0.78 cx=2050 cy= 112
