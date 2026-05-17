@@ -548,6 +548,7 @@
         <div class="output-tabs">
           <div class="output-tab active" onclick="switchTab('process','image')">Rectified image</div>
           <div class="output-tab" onclick="switchTab('process','xml')">MusicXML</div>
+          <div class="output-tab" onclick="switchTab('process','detections')">detections.json</div>
           <div class="output-tab" onclick="switchTab('process','json')">Raw JSON</div>
           <div class="output-tab" onclick="switchTab('process','stats')">Stats</div>
         </div>
@@ -556,6 +557,9 @@
         </div>
         <div class="output-pane" id="process-pane-xml">
           <div class="xml-out" id="process-xml"></div>
+        </div>
+        <div class="output-pane" id="process-pane-detections">
+          <pre class="json-out" id="process-detections"></pre>
         </div>
         <div class="output-pane" id="process-pane-json">
           <pre class="json-out" id="process-json"></pre>
@@ -861,13 +865,24 @@ async function runProcess() {
         document.getElementById('dl-xml-btn').style.display = 'inline-flex';
       }
 
+      // detections.json — exactly the content of the file on disk
+      // (top-level list of staves, each with its own .detections array).
+      if (data.detections) {
+        document.getElementById('process-detections').textContent =
+          JSON.stringify(data.detections, null, 2);
+      }
+
       // Stats
       if (data.detections) {
         const staves = data.detections;
-        const totalDets = staves.reduce((s, st) => s + st.total_detections, 0);
+        const totalDets = staves.reduce(
+          (s, st) => s + (st.total_detections ?? (st.detections ?? []).length),
+          0);
         const counts = {};
-        staves.forEach(st => st.detections.forEach(d => {
-          counts[d.class_name] = (counts[d.class_name] || 0) + 1;
+        staves.forEach(st => (st.detections || []).forEach(d => {
+          // New schema uses `class`; older fixtures may still use `class_name`.
+          const cls = d.class ?? d.class_name ?? '?';
+          counts[cls] = (counts[cls] || 0) + 1;
         }));
         const topClass = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
 

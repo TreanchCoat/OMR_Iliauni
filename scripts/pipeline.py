@@ -79,7 +79,7 @@ import measure_recalculator  # noqa: E402  — re-runnable measure rebar
 #           classical staffline detector in `score_analyzer` (used by
 #           Stage 2) does the line-finding work.  Best for printed
 #           scores with already-straight stafflines; much faster.
-RECTIFY = False
+RECTIFY = True
 
 # When True, dump three visualisation PNGs next to score.xml so you can
 # eyeball what the network is "seeing":
@@ -93,6 +93,13 @@ RECTIFY = False
 # Independent of `save_labeled_crops`, which still produces one labelled
 # crop per staff if enabled.
 VISUALIZE_DETECTIONS = True
+
+# When True, save the binarized-but-unprocessed crop of every staff
+# (Otsu/global threshold, BEFORE staff-line removal) into
+# `output/binarized/P1_staff01.png` etc.  Useful for diagnosing whether
+# binarization itself or the staff-line removal step is responsible for
+# image damage on a given input.
+SAVE_BINARIZED_CROPS = True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -223,6 +230,30 @@ def _save_symbols_overlay(rectified_img, page_detections, out_dir: Path) -> None
     print(f'      Symbol overlay     -> {out_path}')
 
 
+def _save_binarized_crops(processed, out_dir: Path) -> None:
+    """
+    Save one binarized PNG per staff crop, BEFORE the staff-line
+    removal step.  Lets you compare:
+
+        binarized/PN_staffMM_binary.png   ← Otsu on the colour crop only
+        labeled_crops/PN_staffMM_*.png    ← with staff lines removed
+
+    A diff between the two tells you whether the loss happened during
+    binarization or during line removal.
+    """
+    from staff_remover import binarize as _binarize
+    bin_dir = out_dir / 'binarized'
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    saved = 0
+    for ps in processed.all_staves:
+        sd = ps.staff_data
+        binary = _binarize(ps.crop)
+        fname = f'{sd.part_id}_staff{sd.staff_in_part+1:02d}_binary.png'
+        cv2.imwrite(str(bin_dir / fname), binary)
+        saved += 1
+    print(f'      Binarized crops    -> {bin_dir}  ({saved} files)')
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Main entry point
 # ─────────────────────────────────────────────────────────────────────────────
@@ -236,6 +267,7 @@ def run_pipeline(image_path:         str,
                  # default behaviour).
                  rectify:            bool = RECTIFY,
                  visualize_detections: bool = VISUALIZE_DETECTIONS,
+                 save_binarized_crops: bool = SAVE_BINARIZED_CROPS,
                  save_debug_images:  bool = False,
                  save_labeled_crops: bool = True,
                  # Detection params
@@ -397,6 +429,15 @@ def run_pipeline(image_path:         str,
             _save_staves_overlay(rectified_img, processed, out)
         except Exception as e:
             print(f'      [warn] could not save staves overlay: {e}')
+
+    # Binarized (but NOT staff-line-removed) crops, for diagnosing
+    # whether binarization itself or the staff-line-removal step is
+    # damaging printed input.  Same naming convention as labeled_crops.
+    if save_binarized_crops:
+        try:
+            _save_binarized_crops(processed, out)
+        except Exception as e:
+            print(f'      [warn] could not save binarized crops: {e}')
 
     # ── Stage 3: Symbol detection ─────────────────────────────────────
     print('\n[3/4] Running symbol detection …')

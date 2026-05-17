@@ -284,9 +284,12 @@ def create_app():
         det_path = _LAST_RESULT.get('detections_json')
         if not det_path or not Path(det_path).exists():
             return jsonify([]), 200
-        with open(det_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return jsonify(data if isinstance(data, list) else [data])
+        return send_file(
+            det_path,
+            mimetype='application/json',
+            as_attachment=True,
+            download_name='detections.json',
+        )
 
     # ── GET /full ──
     @app.route('/full', methods=['GET'])
