@@ -154,7 +154,7 @@ DUMMY_DETECTIONS_PATH: Path = _path_env(
 
 # API server settings (used by api/real_api.py and api/dummy_api.py).
 HOST:         str = os.environ.get('HOST', '0.0.0.0')
-PORT:         int = int(os.environ.get('PORT', '5000'))
+PORT:         int = int(os.environ.get('PORT', '25576'))
 MAX_IMAGE_MB: int = int(os.environ.get('MAX_IMAGE_MB', '50'))
 
 

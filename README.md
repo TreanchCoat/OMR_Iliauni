@@ -112,3 +112,97 @@ PNG page ──► [1] staff_rectifier     ──► rectified.png
 
 See `docs\thesis_methodology.md` for a stage-by-stage methodology
 write-up.
+
+## API routes
+
+Start the server with `python api\real_api.py` (or `dummy_api.py` for fixture-based responses without a model).
+
+### `POST /process`
+
+Submit a score image; runs the full pipeline and returns all outputs.
+
+**Request** — either form upload or raw body:
+```
+multipart/form-data   field name: image
+application/octet-stream   (raw bytes; optional ?name=filename.png query param)
+```
+
+**Response** `200 application/json`
+```json
+{
+  "rectified":  "<base64-encoded PNG>",
+  "detections": { ... },
+  "xml":        "<MusicXML string>"
+}
+```
+
+**Errors**
+
+| Status | `error` field | Meaning |
+|--------|--------------|---------|
+| `400` | `no_image` | No image field or body in request |
+| `400` | `empty_upload` | Image payload is empty |
+| `500` | `pipeline_error` | Model or pipeline threw an exception |
+
+---
+
+### `GET /rectified`
+
+Returns the rectified PNG produced by the last `/process` call as a file download.
+
+- **`200`** — `image/png` attachment (`rectified.png`)
+- **`404`** — no cached result; call `/process` first
+
+---
+
+### `GET /detections`
+
+Returns the raw detection JSON from the last `/process` call.
+
+- **`200`** — `application/json`
+- **`404`** — no cached result
+
+---
+
+### `GET /xml`
+
+Returns the MusicXML file from the last `/process` call as a file download.
+
+- **`200`** — `application/xml` attachment (`score.xml`)
+- **`404`** — no cached result
+
+---
+
+### `GET /full`
+
+Returns the combined JSON (rectified + detections + xml) from the last `/process` call — equivalent to the `/process` response body without re-running the pipeline.
+
+- **`200`** — `application/json`
+- **`404`** — no cached result
+
+---
+
+### `GET /health`
+
+Server and pipeline readiness check.
+
+**Response** `200 application/json`
+```json
+{
+  "status": "ok",
+  "pipeline": {
+    "model_path":      "/path/to/model.pt",
+    "model_exists":    true,
+    "output_base_dir": "/path/to/output",
+    "max_image_mb":    50
+  },
+  "last_result": {
+    "has_cached_result": false,
+    "job_id": null
+  }
+}
+```
+
+---
+
+> **Note:** The server caches only the **last** processed result. Concurrent or sequential calls to `/process` overwrite the cache. For multi-user deployments, replace the `_LAST_RESULT` global in `real_api.py` with a session-keyed store.

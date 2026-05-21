@@ -2,7 +2,7 @@
 .env
 .env.local
 .env.*.local
-
+.claude
 # ─── Models (large files, often Git LFS instead) ───
 models/*.pt
 models/*.pth
